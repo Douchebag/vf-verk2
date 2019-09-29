@@ -7,6 +7,16 @@ renderer.shadowMap.type	= THREE.PCFSoftShadowMap;
 renderer.setSize( 600, 600 );
 document.body.appendChild( renderer.domElement );
 
+var active = false;
+
+renderer.domElement.addEventListener("mousemove", onmousemove, false);
+renderer.domElement.addEventListener('mouseout', function() {
+	active = false;
+});
+renderer.domElement.addEventListener('mouseleave', function() {
+	active = false;
+});
+
 const loader = new THREE.TextureLoader();
 loader.crossOrigin = true;
 
@@ -21,6 +31,13 @@ plane.position.y = -24;
 
 var face = new THREE.Group();
 
+function onmousemove(event) {
+  mouse = (event.clientX / window.innerWidth) * 2 - 1;
+
+	face.rotation.y = (mouse - (face.position.x + 0.78));
+	active = true;
+}
+
 var pyraGeo = new THREE.ConeGeometry( 30, 50, 4 );
 loader.load('https://s3-us-west-2.amazonaws.com/s.cdpn.io/53148/4268-bump.jpg', function(texture) {
 	var pyraMaterial = new THREE.MeshPhongMaterial( {color: 0xFFFF00, bumpMap: texture} );
@@ -30,13 +47,6 @@ loader.load('https://s3-us-west-2.amazonaws.com/s.cdpn.io/53148/4268-bump.jpg', 
 	pyramid.receiveShadow = false;
 	pyramid.rotation.y = 0.78;
 })
-//var pyraMaterial = new THREE.MeshBasicMaterial({map: loader.load('a/texture.jpg'),});
-//var pyraMaterial = new THREE.MeshBasicMaterial({color: 0xFFFF00});
-//var pyramid = new THREE.Mesh( pyraGeo, pyraMaterial );
-
-//pyramid.castShadow = true;
-//pyramid.receiveShadow = false;
-//pyramid.rotation.y = 0.78;
 
 // framan
 var fIrisGeo = new THREE.CircleGeometry(4, 32);
@@ -204,11 +214,13 @@ light.shadow.camera.far = 500;
 //scene.add( helper );
 
 function animate() {
+
 	requestAnimationFrame( animate );
 	renderer.render( scene, camera );
 
-  //pyramid.rotation.y += 0.01; // uppfaerir rotation a y-as
-	face.rotation.y += 0.01;
+	if (active === false) {
+		face.rotation.y += 0.01;
+	}
 }
 
 animate();
